@@ -13,19 +13,19 @@
   copy:
     src: "{{ docker_registry.tls.certificate }}"
     dest: "{{ docker_registry.volumes.certs }}/domain.crt"
-  notify: restart docker-registry
+  notify: restart registry container
 
 - name: copy key
   copy:
     src: "{{ docker_registry.tls.key }}"
     dest: "{{ docker_registry.volumes.certs }}/domain.key"
-  notify: restart docker-registry
+  notify: restart registry container
 
 - name: copy htpasswd
   copy:
     src: "{{ docker_registry.htpasswd }}"
     dest: "{{ docker_registry.volumes.auth }}/htpasswd"
-  notify: restart docker-registry
+  notify: restart registry container
 
 - name: Install docker registry
   docker_service:
