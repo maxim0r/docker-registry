@@ -1,0 +1,6 @@
+---
+
+- name: restart registry container
+  docker_container:
+    name: "{{ docker_registry.container_name }}"
+    restart: yes

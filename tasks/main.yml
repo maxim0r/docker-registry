@@ -1,0 +1,52 @@
+---
+
+- name: create registry data directory
+  file: path="{{ docker_registry.volumes.data }}" state=directory
+
+- name: create registry certs directory
+  file: path="{{ docker_registry.volumes.certs }}" state=directory
+
+- name: create registry auth directory
+  file: path="{{ docker_registry.volumes.auth }}" state=directory
+
+- name: copy certificate
+  copy:
+    src: "{{ docker_registry.tls.certificate }}"
+    dest: "{{ docker_registry.volumes.certs }}/domain.crt"
+  notify: restart docker-registry
+
+- name: copy key
+  copy:
+    src: "{{ docker_registry.tls.key }}"
+    dest: "{{ docker_registry.volumes.certs }}/domain.key"
+  notify: restart docker-registry
+
+- name: copy htpasswd
+  copy:
+    src: "{{ docker_registry.htpasswd }}"
+    dest: "{{ docker_registry.volumes.auth }}/htpasswd"
+  notify: restart docker-registry
+
+- name: Install docker registry
+  docker_service:
+    project_name: docker-registry
+    restarted: yes
+    definition:
+      version: '2'
+      services:
+        registry:
+          container_name: "{{ docker_registry.container_name }}"
+          restart: "{{ docker_registry.restart }}"
+          image: "{{ docker_registry.image }}"
+          ports:
+            - "{{ docker_registry.port }}:5000"
+          environment:
+            REGISTRY_HTTP_TLS_CERTIFICATE: "{{ docker_registry.environment.REGISTRY_HTTP_TLS_CERTIFICATE }}"
+            REGISTRY_HTTP_TLS_KEY: "{{ docker_registry.environment.REGISTRY_HTTP_TLS_KEY }}"
+            REGISTRY_AUTH: "{{ docker_registry.environment.REGISTRY_AUTH }}"
+            REGISTRY_AUTH_HTPASSWD_PATH: "{{ docker_registry.environment.REGISTRY_AUTH_HTPASSWD_PATH }}"
+            REGISTRY_AUTH_HTPASSWD_REALM: "{{ docker_registry.environment.REGISTRY_AUTH_HTPASSWD_REALM }}"
+          volumes:
+            - "{{ docker_registry.volumes.data }}:/var/lib/registry"
+            - "{{ docker_registry.volumes.certs }}:/certs"
+            - "{{ docker_registry.volumes.auth }}:/auth"

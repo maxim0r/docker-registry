@@ -1,0 +1,20 @@
+---
+docker_registry:
+  container_name: registry-container
+  restart: always
+  image: registry:2
+  port: 5000
+  htpasswd: /tmp/htpasswd
+  tls:
+    certificate: /tmp/cert.pem
+    key: /tmp/key.pem
+  environment:
+    REGISTRY_HTTP_TLS_CERTIFICATE: /certs/domain.crt
+    REGISTRY_HTTP_TLS_KEY: /certs/domain.key
+    REGISTRY_AUTH: htpasswd
+    REGISTRY_AUTH_HTPASSWD_PATH: /auth/htpasswd
+    REGISTRY_AUTH_HTPASSWD_REALM: Registry Realm
+  volumes:
+    data: /var/local/registry/data
+    certs: /var/local/registry/certs
+    auth: /var/local/registry/auth
