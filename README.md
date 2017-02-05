@@ -1,4 +1,4 @@
-Role Name
+docker-registry
 =========
 
 Docker registry v2 install
